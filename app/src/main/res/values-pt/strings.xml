@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Meu Gestor de Tarefas</string>
+    <string name="Escriba_Nombre">Escreva seu nome</string>
+    <string name="escriba_email">escreva seu gmail</string>
+    <string name="esciba_email">escreva seu gmail</string>
+    <string name="btn_Guardar">Salvar</string>
+    <string name="email_error">gmail nao pode ser valida</string>
+</resources>
