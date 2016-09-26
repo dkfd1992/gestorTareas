@@ -1,27 +1,18 @@
 package py.edu.drakefor.gestordetareas;
 
-import android.net.Uri;
-import android.provider.ContactsContract;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.util.Patterns;
 import android.view.View;
-import android.widget.Adapter;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.google.android.gms.appindexing.Action;
-import com.google.android.gms.appindexing.AppIndex;
-import com.google.android.gms.common.api.GoogleApiClient;
-
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -30,8 +21,11 @@ public class MainActivity extends AppCompatActivity {
     EditText emailEditex;
     Button guardarBtn;
     ListView usuariosListView;
-    List<String> usuarios = new ArrayList<String>();
+   List<String> contacto = new ArrayList<String>();
+    List<Contacto> contactos;
     ArrayAdapter<String> adapter;
+    ContactoDao contactoDao;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,9 +36,19 @@ public class MainActivity extends AppCompatActivity {
         emailEditex = (EditText) findViewById(R.id.editTextEmail);
         guardarBtn = (Button) findViewById(R.id.buttonGuardar);
 
+        //iniciar db
+        DBA.init(getApplicationContext());
+        try {
+            contactos = DBA.getContactoDao().queryForAll();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        contactoDao = new ContactoDao(this);
+
         usuariosListView = (ListView)findViewById((R.id.listViewUsuario));
 
-        adapter = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,android.R.id.text1,usuarios);
+        adapter = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,android.R.id.text1, contacto);
 
         usuariosListView.setAdapter(adapter);
 
@@ -60,18 +64,23 @@ public class MainActivity extends AppCompatActivity {
                     nombreEditex.setError(getString(R.string.nombre_error));
 
                 }else if (!validarEmail(email)){
+
                     emailEditex.setError(getString(R.string.email_error));
 
                 }else {
                     String mensaje = getString(R.string.welcome_msj)+nombre+""+email;
                     Toast.makeText(MainActivity.this, mensaje, Toast.LENGTH_LONG).show();
 
+                    Contacto c = new Contacto();
+                    c.setNombre(nombre);
+                    c.setEmail(email);
+                    contactoDao.crear(c);
+
                     String datos = nombre+" "+email;
-                    usuarios.add(datos);
+
+                    contacto.add(datos);
+                   // adapter = (ArrayAdapter<String>) contactoDao.seleccionarTodo();
                     adapter.notifyDataSetChanged();
-
-
-
 
 
                     nombreEditex.setText(null);
@@ -79,8 +88,11 @@ public class MainActivity extends AppCompatActivity {
                 }
 
 
+
                }
             });
+        contactoDao.seleccionarTodo();
+
         }
 
             private boolean validarNombre(String nombre) {
@@ -92,7 +104,25 @@ public class MainActivity extends AppCompatActivity {
                return Patterns.EMAIL_ADDRESS.matcher(email).matches();
 
 
-    }
+             }
+
+    //   private List<String> usuarios(List<contacto> usuarios){
+     //   List<String> lista = new ArrayList<String>();
+
+     //   for (contacto u : contacto){
+     //       lista.add(u.toString());
+     //   }
+
+     //   return lista;
+   //// }
+
+   /// @OnItemClick(R.id.listViewUsuarios)
+   /// public void clickItemUsuario(int position){
+    ///    String u = contacto.get(position);
+    ///    Snackbar.make(usuariosListView, u,Snackbar.LENGTH_LONG).show();
+   // }
+
+
 
 
 }
