@@ -22,9 +22,9 @@ public class MainActivity extends AppCompatActivity {
     Button guardarBtn;
     ListView usuariosListView;
    List<String> contacto = new ArrayList<String>();
-    List<Contacto> contactos;
     ArrayAdapter<String> adapter;
     ContactoDao contactoDao;
+
 
 
     @Override
@@ -36,15 +36,13 @@ public class MainActivity extends AppCompatActivity {
         emailEditex = (EditText) findViewById(R.id.editTextEmail);
         guardarBtn = (Button) findViewById(R.id.buttonGuardar);
 
-        //iniciar db
-        DBA.init(getApplicationContext());
-        try {
-            contactos = DBA.getContactoDao().queryForAll();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
 
         contactoDao = new ContactoDao(this);
+
+        //recuperar contactos
+        List<Contacto> contactoEntidad = contactoDao.seleccionarTodo();
+        contacto = contactosToString(contactoEntidad);
+
 
         usuariosListView = (ListView)findViewById((R.id.listViewUsuario));
 
@@ -76,10 +74,10 @@ public class MainActivity extends AppCompatActivity {
                     c.setEmail(email);
                     contactoDao.crear(c);
 
-                    String datos = nombre+" "+email;
+                    String datos = nombre+"\n "+email;
 
-                    contacto.add(datos);
-                   // adapter = (ArrayAdapter<String>) contactoDao.seleccionarTodo();
+                  contacto.add(datos);
+
                     adapter.notifyDataSetChanged();
 
 
@@ -87,15 +85,20 @@ public class MainActivity extends AppCompatActivity {
                     emailEditex.setText(null);
                 }
 
-
-
                }
             });
-        contactoDao.seleccionarTodo();
 
         }
 
-            private boolean validarNombre(String nombre) {
+    private List<String> contactosToString(List<Contacto> contactoEntidad) {
+        List<String> result = new ArrayList<>();
+        for (Contacto c:contactoEntidad){
+            result.add(c.getNombre()+"\n"+c.getEmail());
+        }
+        return result;
+    }
+
+    private boolean validarNombre(String nombre) {
               return !nombre.equals("");
 
 
@@ -106,21 +109,6 @@ public class MainActivity extends AppCompatActivity {
 
              }
 
-    //   private List<String> usuarios(List<contacto> usuarios){
-     //   List<String> lista = new ArrayList<String>();
-
-     //   for (contacto u : contacto){
-     //       lista.add(u.toString());
-     //   }
-
-     //   return lista;
-   //// }
-
-   /// @OnItemClick(R.id.listViewUsuarios)
-   /// public void clickItemUsuario(int position){
-    ///    String u = contacto.get(position);
-    ///    Snackbar.make(usuariosListView, u,Snackbar.LENGTH_LONG).show();
-   // }
 
 
 
